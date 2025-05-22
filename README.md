@@ -1,2 +1,2 @@
-# Alquran-Tasmi-
+# Alquran dengan Metode Tasmi'
 Project With Dean
