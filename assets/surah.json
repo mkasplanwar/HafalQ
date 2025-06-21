@@ -1,0 +1,800 @@
+[
+  {
+    "number": 1,
+    "name": "Al-Fatihah",
+    "arabic": "الفاتحة",
+    "place": "Mekah",
+    "ayahs": 7
+  },
+  {
+    "number": 2,
+    "name": "Al-Baqarah",
+    "arabic": "البقرة",
+    "place": "Madinah",
+    "ayahs": 286
+  },
+  {
+    "number": 3,
+    "name": "Ali 'Imran",
+    "arabic": "آل عمران",
+    "place": "Madinah",
+    "ayahs": 200
+  },
+  {
+    "number": 4,
+    "name": "An-Nisa'",
+    "arabic": "النساء",
+    "place": "Madinah",
+    "ayahs": 176
+  },
+  {
+    "number": 5,
+    "name": "Al-Ma'idah",
+    "arabic": "المائدة",
+    "place": "Madinah",
+    "ayahs": 120
+  },
+  {
+    "number": 6,
+    "name": "Al-An'am",
+    "arabic": "الأنعام",
+    "place": "Mekah",
+    "ayahs": 165
+  },
+  {
+    "number": 7,
+    "name": "Al-A'raf",
+    "arabic": "الأعراف",
+    "place": "Mekah",
+    "ayahs": 206
+  },
+  {
+    "number": 8,
+    "name": "Al-Anfal",
+    "arabic": "الأنفال",
+    "place": "Madinah",
+    "ayahs": 75
+  },
+  {
+    "number": 9,
+    "name": "At-Tawbah",
+    "arabic": "التوبة",
+    "place": "Madinah",
+    "ayahs": 129
+  },
+  {
+    "number": 10,
+    "name": "Yunus",
+    "arabic": "يونس",
+    "place": "Mekah",
+    "ayahs": 109
+  },
+  {
+    "number": 11,
+    "name": "Hud",
+    "arabic": "هود",
+    "place": "Mekah",
+    "ayahs": 123
+  },
+  {
+    "number": 12,
+    "name": "Yusuf",
+    "arabic": "يوسف",
+    "place": "Mekah",
+    "ayahs": 111
+  },
+  {
+    "number": 13,
+    "name": "Ar-Ra'd",
+    "arabic": "الرعد",
+    "place": "Madinah",
+    "ayahs": 43
+  },
+  {
+    "number": 14,
+    "name": "Ibrahim",
+    "arabic": "إبراهيم",
+    "place": "Mekah",
+    "ayahs": 52
+  },
+  {
+    "number": 15,
+    "name": "Al-Hijr",
+    "arabic": "الحجر",
+    "place": "Mekah",
+    "ayahs": 99
+  },
+  {
+    "number": 16,
+    "name": "An-Nahl",
+    "arabic": "النحل",
+    "place": "Mekah",
+    "ayahs": 128
+  },
+  {
+    "number": 17,
+    "name": "Al-Isra'",
+    "arabic": "الإسراء",
+    "place": "Mekah",
+    "ayahs": 111
+  },
+  {
+    "number": 18,
+    "name": "Al-Kahf",
+    "arabic": "الكهف",
+    "place": "Mekah",
+    "ayahs": 110
+  },
+  {
+    "number": 19,
+    "name": "Maryam",
+    "arabic": "مريم",
+    "place": "Mekah",
+    "ayahs": 98
+  },
+  {
+    "number": 20,
+    "name": "Ta-Ha",
+    "arabic": "طه",
+    "place": "Mekah",
+    "ayahs": 135
+  },
+  {
+    "number": 21,
+    "name": "Al-Anbiya'",
+    "arabic": "الأنبياء",
+    "place": "Mekah",
+    "ayahs": 112
+  },
+  {
+    "number": 22,
+    "name": "Al-Hajj",
+    "arabic": "الحج",
+    "place": "Madinah",
+    "ayahs": 78
+  },
+  {
+    "number": 23,
+    "name": "Al-Mu'minun",
+    "arabic": "المؤمنون",
+    "place": "Mekah",
+    "ayahs": 118
+  },
+  {
+    "number": 24,
+    "name": "An-Nur",
+    "arabic": "النور",
+    "place": "Madinah",
+    "ayahs": 64
+  },
+  {
+    "number": 25,
+    "name": "Al-Furqan",
+    "arabic": "الفرقان",
+    "place": "Mekah",
+    "ayahs": 77
+  },
+  {
+    "number": 26,
+    "name": "Ash-Shu'ara'",
+    "arabic": "الشعراء",
+    "place": "Mekah",
+    "ayahs": 227
+  },
+  {
+    "number": 27,
+    "name": "An-Naml",
+    "arabic": "النمل",
+    "place": "Mekah",
+    "ayahs": 93
+  },
+  {
+    "number": 28,
+    "name": "Al-Qasas",
+    "arabic": "القصص",
+    "place": "Mekah",
+    "ayahs": 88
+  },
+  {
+    "number": 29,
+    "name": "Al-'Ankabut",
+    "arabic": "العنكبوت",
+    "place": "Mekah",
+    "ayahs": 69
+  },
+  {
+    "number": 30,
+    "name": "Ar-Rum",
+    "arabic": "الروم",
+    "place": "Mekah",
+    "ayahs": 60
+  },
+  {
+    "number": 31,
+    "name": "Luqman",
+    "arabic": "لقمان",
+    "place": "Mekah",
+    "ayahs": 34
+  },
+  {
+    "number": 32,
+    "name": "As-Sajdah",
+    "arabic": "السجدة",
+    "place": "Mekah",
+    "ayahs": 30
+  },
+  {
+    "number": 33,
+    "name": "Al-Ahzab",
+    "arabic": "الأحزاب",
+    "place": "Madinah",
+    "ayahs": 73
+  },
+  {
+    "number": 34,
+    "name": "Saba'",
+    "arabic": "سبإ",
+    "place": "Mekah",
+    "ayahs": 54
+  },
+  {
+    "number": 35,
+    "name": "Fatir",
+    "arabic": "فاطر",
+    "place": "Mekah",
+    "ayahs": 45
+  },
+  {
+    "number": 36,
+    "name": "Ya-Sin",
+    "arabic": "يس",
+    "place": "Mekah",
+    "ayahs": 83
+  },
+  {
+    "number": 37,
+    "name": "As-Saffat",
+    "arabic": "الصافات",
+    "place": "Mekah",
+    "ayahs": 182
+  },
+  {
+    "number": 38,
+    "name": "Sad",
+    "arabic": "ص",
+    "place": "Mekah",
+    "ayahs": 88
+  },
+  {
+    "number": 39,
+    "name": "Az-Zumar",
+    "arabic": "الزمر",
+    "place": "Mekah",
+    "ayahs": 75
+  },
+  {
+    "number": 40,
+    "name": "Ghafir",
+    "arabic": "غافر",
+    "place": "Mekah",
+    "ayahs": 85
+  },
+  {
+    "number": 41,
+    "name": "Fussilat",
+    "arabic": "فصلت",
+    "place": "Mekah",
+    "ayahs": 54
+  },
+  {
+    "number": 42,
+    "name": "Ash-Shura",
+    "arabic": "الشورى",
+    "place": "Mekah",
+    "ayahs": 53
+  },
+  {
+    "number": 43,
+    "name": "Az-Zukhruf",
+    "arabic": "الزخرف",
+    "place": "Mekah",
+    "ayahs": 89
+  },
+  {
+    "number": 44,
+    "name": "Ad-Dukhan",
+    "arabic": "الدخان",
+    "place": "Mekah",
+    "ayahs": 59
+  },
+  {
+    "number": 45,
+    "name": "Al-Jathiyah",
+    "arabic": "الجاثية",
+    "place": "Mekah",
+    "ayahs": 37
+  },
+  {
+    "number": 46,
+    "name": "Al-Ahqaf",
+    "arabic": "الأحقاف",
+    "place": "Mekah",
+    "ayahs": 35
+  },
+  {
+    "number": 47,
+    "name": "Muhammad",
+    "arabic": "محمد",
+    "place": "Madinah",
+    "ayahs": 38
+  },
+  {
+    "number": 48,
+    "name": "Al-Fath",
+    "arabic": "الفتح",
+    "place": "Madinah",
+    "ayahs": 29
+  },
+  {
+    "number": 49,
+    "name": "Al-Hujurat",
+    "arabic": "الحجرات",
+    "place": "Madinah",
+    "ayahs": 18
+  },
+  {
+    "number": 50,
+    "name": "Qaf",
+    "arabic": "ق",
+    "place": "Mekah",
+    "ayahs": 45
+  },
+  {
+    "number": 51,
+    "name": "Adh-Dhariyat",
+    "arabic": "الذاريات",
+    "place": "Mekah",
+    "ayahs": 60
+  },
+  {
+    "number": 52,
+    "name": "At-Tur",
+    "arabic": "الطور",
+    "place": "Mekah",
+    "ayahs": 49
+  },
+  {
+    "number": 53,
+    "name": "An-Najm",
+    "arabic": "النجم",
+    "place": "Mekah",
+    "ayahs": 62
+  },
+  {
+    "number": 54,
+    "name": "Al-Qamar",
+    "arabic": "القمر",
+    "place": "Mekah",
+    "ayahs": 55
+  },
+  {
+    "number": 55,
+    "name": "Ar-Rahman",
+    "arabic": "الرحمن",
+    "place": "Madinah",
+    "ayahs": 78
+  },
+  {
+    "number": 56,
+    "name": "Al-Waqi'ah",
+    "arabic": "الواقعة",
+    "place": "Mekah",
+    "ayahs": 96
+  },
+  {
+    "number": 57,
+    "name": "Al-Hadid",
+    "arabic": "الحديد",
+    "place": "Madinah",
+    "ayahs": 29
+  },
+  {
+    "number": 58,
+    "name": "Al-Mujadila",
+    "arabic": "المجادلة",
+    "place": "Madinah",
+    "ayahs": 22
+  },
+  {
+    "number": 59,
+    "name": "Al-Hashr",
+    "arabic": "الحشر",
+    "place": "Madinah",
+    "ayahs": 24
+  },
+  {
+    "number": 60,
+    "name": "Al-Mumtahanah",
+    "arabic": "الممتحنة",
+    "place": "Madinah",
+    "ayahs": 13
+  },
+  {
+    "number": 61,
+    "name": "As-Saff",
+    "arabic": "الصف",
+    "place": "Madinah",
+    "ayahs": 14
+  },
+  {
+    "number": 62,
+    "name": "Al-Jumu'ah",
+    "arabic": "الجمعة",
+    "place": "Madinah",
+    "ayahs": 11
+  },
+  {
+    "number": 63,
+    "name": "Al-Munafiqun",
+    "arabic": "المنافقون",
+    "place": "Madinah",
+    "ayahs": 11
+  },
+  {
+    "number": 64,
+    "name": "At-Taghabun",
+    "arabic": "التغابن",
+    "place": "Madinah",
+    "ayahs": 18
+  },
+  {
+    "number": 65,
+    "name": "At-Talaq",
+    "arabic": "الطلاق",
+    "place": "Madinah",
+    "ayahs": 12
+  },
+  {
+    "number": 66,
+    "name": "At-Tahrim",
+    "arabic": "التحريم",
+    "place": "Madinah",
+    "ayahs": 12
+  },
+  {
+    "number": 67,
+    "name": "Al-Mulk",
+    "arabic": "الملك",
+    "place": "Mekah",
+    "ayahs": 30
+  },
+  {
+    "number": 68,
+    "name": "Al-Qalam",
+    "arabic": "القلم",
+    "place": "Mekah",
+    "ayahs": 52
+  },
+  {
+    "number": 69,
+    "name": "Al-Haqqah",
+    "arabic": "الحاقة",
+    "place": "Mekah",
+    "ayahs": 52
+  },
+  {
+    "number": 70,
+    "name": "Al-Ma'arij",
+    "arabic": "المعارج",
+    "place": "Mekah",
+    "ayahs": 44
+  },
+  {
+    "number": 71,
+    "name": "Nuh",
+    "arabic": "نوح",
+    "place": "Mekah",
+    "ayahs": 28
+  },
+  {
+    "number": 72,
+    "name": "Al-Jinn",
+    "arabic": "الجن",
+    "place": "Mekah",
+    "ayahs": 28
+  },
+  {
+    "number": 73,
+    "name": "Al-Muzzammil",
+    "arabic": "المزمل",
+    "place": "Mekah",
+    "ayahs": 20
+  },
+  {
+    "number": 74,
+    "name": "Al-Muddathir",
+    "arabic": "المدثر",
+    "place": "Mekah",
+    "ayahs": 56
+  },
+  {
+    "number": 75,
+    "name": "Al-Qiyamah",
+    "arabic": "القيامة",
+    "place": "Mekah",
+    "ayahs": 40
+  },
+  {
+    "number": 76,
+    "name": "Al-Insan",
+    "arabic": "الإنسان",
+    "place": "Madinah",
+    "ayahs": 31
+  },
+  {
+    "number": 77,
+    "name": "Al-Mursalat",
+    "arabic": "المرسلات",
+    "place": "Mekah",
+    "ayahs": 50
+  },
+  {
+    "number": 78,
+    "name": "An-Naba'",
+    "arabic": "النبأ",
+    "place": "Mekah",
+    "ayahs": 40
+  },
+  {
+    "number": 79,
+    "name": "An-Nazi'at",
+    "arabic": "النازعات",
+    "place": "Mekah",
+    "ayahs": 46
+  },
+  {
+    "number": 80,
+    "name": "Abasa",
+    "arabic": "عبس",
+    "place": "Mekah",
+    "ayahs": 42
+  },
+  {
+    "number": 81,
+    "name": "At-Takwir",
+    "arabic": "التكوير",
+    "place": "Mekah",
+    "ayahs": 29
+  },
+  {
+    "number": 82,
+    "name": "Al-Infitar",
+    "arabic": "الانفطار",
+    "place": "Mekah",
+    "ayahs": 19
+  },
+  {
+    "number": 83,
+    "name": "Al-Mutaffifin",
+    "arabic": "المطففين",
+    "place": "Mekah",
+    "ayahs": 36
+  },
+  {
+    "number": 84,
+    "name": "Al-Inshiqaq",
+    "arabic": "الانشقاق",
+    "place": "Mekah",
+    "ayahs": 25
+  },
+  {
+    "number": 85,
+    "name": "Al-Buruj",
+    "arabic": "البروج",
+    "place": "Mekah",
+    "ayahs": 22
+  },
+  {
+    "number": 86,
+    "name": "At-Tariq",
+    "arabic": "الطارق",
+    "place": "Mekah",
+    "ayahs": 17
+  },
+  {
+    "number": 87,
+    "name": "Al-A'la",
+    "arabic": "الأعلى",
+    "place": "Mekah",
+    "ayahs": 19
+  },
+  {
+    "number": 88,
+    "name": "Al-Ghashiyah",
+    "arabic": "الغاشية",
+    "place": "Mekah",
+    "ayahs": 26
+  },
+  {
+    "number": 89,
+    "name": "Al-Fajr",
+    "arabic": "الفجر",
+    "place": "Mekah",
+    "ayahs": 30
+  },
+  {
+    "number": 90,
+    "name": "Al-Balad",
+    "arabic": "البلد",
+    "place": "Mekah",
+    "ayahs": 20
+  },
+  {
+    "number": 91,
+    "name": "Ash-Shams",
+    "arabic": "الشمس",
+    "place": "Mekah",
+    "ayahs": 15
+  },
+  {
+    "number": 92,
+    "name": "Al-Lail",
+    "arabic": "الليل",
+    "place": "Mekah",
+    "ayahs": 21
+  },
+  {
+    "number": 93,
+    "name": "Adh-Dhuha",
+    "arabic": "الضحى",
+    "place": "Mekah",
+    "ayahs": 11
+  },
+  {
+    "number": 94,
+    "name": "Ash-Sharh",
+    "arabic": "الشرح",
+    "place": "Mekah",
+    "ayahs": 8
+  },
+  {
+    "number": 95,
+    "name": "At-Tin",
+    "arabic": "التين",
+    "place": "Mekah",
+    "ayahs": 8
+  },
+  {
+    "number": 96,
+    "name": "Al-'Alaq",
+    "arabic": "العلق",
+    "place": "Mekah",
+    "ayahs": 19
+  },
+  {
+    "number": 97,
+    "name": "Al-Qadr",
+    "arabic": "القدر",
+    "place": "Mekah",
+    "ayahs": 5
+  },
+  {
+    "number": 98,
+    "name": "Al-Bayyinah",
+    "arabic": "البينة",
+    "place": "Madinah",
+    "ayahs": 8
+  },
+  {
+    "number": 99,
+    "name": "Az-Zalzalah",
+    "arabic": "الزلزلة",
+    "place": "Madinah",
+    "ayahs": 8
+  },
+  {
+    "number": 100,
+    "name": "Al-Adiyat",
+    "arabic": "العاديات",
+    "place": "Mekah",
+    "ayahs": 11
+  },
+  {
+    "number": 101,
+    "name": "Al-Qari'ah",
+    "arabic": "القارعة",
+    "place": "Mekah",
+    "ayahs": 11
+  },
+  {
+    "number": 102,
+    "name": "At-Takathur",
+    "arabic": "التكاثر",
+    "place": "Mekah",
+    "ayahs": 8
+  },
+  {
+    "number": 103,
+    "name": "Al-Asr",
+    "arabic": "العصر",
+    "place": "Mekah",
+    "ayahs": 3
+  },
+  {
+    "number": 104,
+    "name": "Al-Humazah",
+    "arabic": "الهمزة",
+    "place": "Mekah",
+    "ayahs": 9
+  },
+  {
+    "number": 105,
+    "name": "Al-Fil",
+    "arabic": "الفيل",
+    "place": "Mekah",
+    "ayahs": 5
+  },
+  {
+    "number": 106,
+    "name": "Quraysh",
+    "arabic": "قريش",
+    "place": "Mekah",
+    "ayahs": 4
+  },
+  {
+    "number": 107,
+    "name": "Al-Ma'un",
+    "arabic": "الماعون",
+    "place": "Mekah",
+    "ayahs": 7
+  },
+  {
+    "number": 108,
+    "name": "Al-Kawthar",
+    "arabic": "الكوثر",
+    "place": "Mekah",
+    "ayahs": 3
+  },
+  {
+    "number": 109,
+    "name": "Al-Kafirun",
+    "arabic": "الكافرون",
+    "place": "Mekah",
+    "ayahs": 6
+  },
+  {
+    "number": 110,
+    "name": "An-Nasr",
+    "arabic": "النصر",
+    "place": "Madinah",
+    "ayahs": 3
+  },
+  {
+    "number": 111,
+    "name": "Al-Masad",
+    "arabic": "المسد",
+    "place": "Mekah",
+    "ayahs": 5
+  },
+  {
+    "number": 112,
+    "name": "Al-Ikhlas",
+    "arabic": "الإخلاص",
+    "place": "Mekah",
+    "ayahs": 4
+  },
+  {
+    "number": 113,
+    "name": "Al-Falaq",
+    "arabic": "الفلق",
+    "place": "Mekah",
+    "ayahs": 5
+  },
+  {
+    "number": 114,
+    "name": "An-Nas",
+    "arabic": "الناس",
+    "place": "Mekah",
+    "ayahs": 6
+  }
+]
