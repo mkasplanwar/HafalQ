@@ -1,16 +1,25 @@
-# flutter_application_2
+# HafalQ V2
 
-A new Flutter project.
+**Aplikasi Flutter untuk membantu menghafal, membaca, dan memahami Al-Quran dengan mudah dan modern.**
 
-## Getting Started
+## ✨ Fitur Utama
 
-This project is a starting point for a Flutter application.
+- Daftar surah Al-Quran lengkap dengan pencarian cepat
+- Detail surah: ayat arab, latin, terjemahan, dan audio murottal
+- Bookmark ayat/surah favorit untuk belajar dan mengulang
+- Pengaturan tampilan: dark mode, ukuran font, dan volume audio
+- Profil pengguna yang bisa diedit sesuai kebutuhan
 
-A few resources to get you started if this is your first Flutter project:
+## 📱 Screenshot
+![Screenshot Home](assets/screenshot_home.png)
+![Screenshot Surah](assets/screenshot_surah.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## ℹ️ Changelog
+Lihat [Release Page](https://github.com/username/repo/releases) untuk detail update versi terbaru.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Instalasi & Kontribusi
+Petunjuk instalasi dan kontribusi silakan cek di bawah...
+
+---
+
+> **HafalQ** dibuat untuk membantu siapa saja dalam perjalanan menghafal dan memahami Al-Quran, dengan teknologi yang ramah, modern, dan mudah diakses.
