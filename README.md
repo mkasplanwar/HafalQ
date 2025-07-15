@@ -22,4 +22,4 @@ Petunjuk instalasi dan kontribusi silakan cek di bawah...
 
 ---
 
-> **HafalQ** dibuat untuk membantu siapa saja dalam perjalanan menghafal dan memahami Al-Quran, dengan teknologi yang ramah, modern, dan mudah diakses.
+> **HafalQ** dibuat untuk membantu siapa saja dalam perjalanan menghafal dan memahami Al-Quran, dengan teknologi yang ramah, modern, dan mudah diakses
