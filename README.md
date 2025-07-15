@@ -15,7 +15,7 @@
 ![Screenshot Surah](assets/screenshot_surah.png)
 
 ## ℹ️ Changelog
-Lihat [Release Page](https://github.com/username/repo/releases) untuk detail update versi terbaru.
+Lihat [Release Page](https://github.com/mkasplanwar/HafalQ/releases) untuk detail update versi terbaru.
 
 ## 🚀 Instalasi & Kontribusi
 Petunjuk instalasi dan kontribusi silakan cek di bawah...
