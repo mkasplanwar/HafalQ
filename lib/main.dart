@@ -3,9 +3,19 @@ import 'package:provider/provider.dart';
 import 'services/bookmark_service.dart';
 import 'pages/quran_page.dart';
 import 'pages/bookmark_page.dart';
+import 'pages/settings_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'services/sholat_schedule_service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'widgets/hijri_calendar_card.dart';
+import 'widgets/IslamicQuoteCard.dart';
+import 'widgets/GreetingHeader.dart';
+import 'package:animations/animations.dart';
+
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -13,7 +23,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   double _opacity = 1.0;
-
+  
   @override
   void initState() {
     super.initState();
@@ -33,28 +43,22 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: AnimatedOpacity(
-              opacity: _opacity,
-              duration: const Duration(milliseconds: 600),
-              curve: Curves.easeInOut,
-              child: Image.asset(
-                'assets/splash.png',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              ),
-            ),
-          ),
-        ],
+      body: AnimatedOpacity(
+      opacity: _opacity,
+      duration: const Duration(milliseconds: 1000),
+      child: SizedBox.expand(
+        child: Image.asset(
+          'assets/splash.png',
+          fit: BoxFit.cover,
+        ),
       ),
+    ),
     );
   }
 }
+
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  const MainNavigation({Key? key}) : super(key: key);
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -63,64 +67,150 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  static final List<Widget> _pages = <Widget>[
-    HomePage(),
-    BookmarkPage(),
-    SettingsPage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: const Color(0xFF1ABC9C),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            'assets/bg_hafalq.png',
+            fit: BoxFit.cover,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
-            label: 'Bookmark',
+        ),
+              // Lapisan gradasi putih semi-transparan
+      Positioned.fill(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color.fromARGB(228, 255, 255, 255), // putih semi-transparan di atas
+                Color.fromARGB(255, 255, 255, 255), // semakin transparan ke bawah
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        ),
       ),
-    );
-  }
-}
-
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => BookmarkService(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
-      ),
+        SafeArea(
+          child: IndexedStack(
+            index: _selectedIndex,
+            children: const [
+              HomePage(),
+              QuranPage(),
+              BookmarkPage(),
+              SettingsPage(),
+            ],
+          ),
+        ),
+      ],
+    ),
+    bottomNavigationBar: BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      onTap: (index) => setState(() => _selectedIndex = index),
+      type: BottomNavigationBarType.fixed,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+        BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: "Qur'an"),
+        BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Bookmark'),
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
+      ],
     ),
   );
 }
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String _username = '';
+  bool _loadingSholat = true;
+  dynamic _sholatSchedule;
+  String _sholatError = '';
+  String _cityName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+    _fetchSholatScheduleWithLocation();
+  }
+
+  Future<void> _loadUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    final loaded = prefs.getString('username') ?? '';
+    setState(() {
+      _username = loaded;
+    });
+    debugPrint('Username from SharedPreferences: $_username');
+  }
+
+  Future<void> _fetchSholatScheduleWithLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _loadingSholat = false;
+            _sholatError = 'Izin lokasi ditolak oleh pengguna';
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _loadingSholat = false;
+          _sholatError = 'Izin lokasi permanen ditolak. Aktifkan secara manual di pengaturan.';
+        });
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      String city = placemarks.isNotEmpty ? placemarks[0].locality ?? '' : '';
+
+      final result = await SholatScheduleService.fetchFromLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      setState(() {
+        _sholatSchedule = result;
+        _loadingSholat = false;
+        _sholatError = result == null ? 'Gagal memuat jadwal sholat' : '';
+        _cityName = city;
+      });
+    } catch (e) {
+      setState(() {
+        _loadingSholat = false;
+        _sholatError = 'Gagal mendapatkan lokasi: $e';
+      });
+    }
+}
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
+    final fontSub = isSmall ? 16.0 : 22.0;
+    final gridAspect = isSmall ? 1.2 : 1.5;
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           Positioned.fill(
@@ -129,137 +219,127 @@ class HomePage extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          Container(
-            color: Colors.white.withOpacity(0.82),
-          ),
           SafeArea(
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                // ...existing code...
-                Row(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(isSmall ? 12 : 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: const Color(0xFFF7C873),
-                      child: const Icon(Icons.person, color: Color(0xFF1ABC9C), size: 32),
+                    SizedBox(height: isSmall ? 5 : 15),
+                    GreetingHeader(
+                      username: _username,
+                      city: _cityName,
+                      isSmall: isSmall,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
+                    SizedBox(height: isSmall ? 5 : 15),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 17, 124, 103).withOpacity(0.13),
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color.fromARGB(255, 19, 133, 110).withOpacity(0.08),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(isSmall ? 10 : 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      Text(
-                        "Assalamu’alaikum 👋", // versi Arab
-                        style: TextStyle(
-                          fontFamily: 'Cinzel', // atau font Arab seperti Scheherazade
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.teal[700],
-                        ),
-                        textAlign: TextAlign.right,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Selamat datang di HafalQ!",
-                        style: TextStyle(
-                          fontFamily: 'Cinzel',
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ],
-
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.notifications, color: Color(0xFF1ABC9C)),
-                      onPressed: () {},
-                      tooltip: 'Notifikasi',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 22),
-                // ...existing code...
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1ABC9C).withOpacity(0.13),
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1ABC9C).withOpacity(0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                    border: Border.all(color: const Color(0xFF1ABC9C).withOpacity(0.18)),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: const [
-                          Icon(Icons.access_time, color: Color(0xFF1ABC9C)),
-                          SizedBox(width: 10),
-                          Text("Jadwal Sholat Hari Ini", style: TextStyle(fontFamily: 'Cinzel',color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold, fontSize: 16)),
+                          Row(
+                            children: [
+                              Icon(Icons.access_time, color: const Color.fromARGB(255, 64, 70, 69), size: isSmall ? 16 : 22),
+                              SizedBox(width: isSmall ? 5 : 10),
+                              Text(
+                                "Jadwal Sholat Hari Ini",
+                                style: TextStyle(fontFamily: 'Cinzel', color: const Color.fromARGB(255, 67, 72, 71), fontWeight: FontWeight.bold, fontSize: isSmall ? 12 : 16),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: isSmall ? 5 : 10),
+                          if (_loadingSholat)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          else if (_sholatSchedule != null)
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  _SholatTime(label: "Subuh", time: _sholatSchedule!.subuh),
+                                  const SizedBox(width: 10),
+                                  _SholatTime(label: "Dzuhur", time: _sholatSchedule!.dzuhur),
+                                  const SizedBox(width: 10),
+                                  _SholatTime(label: "Ashar", time: _sholatSchedule!.ashar),
+                                  const SizedBox(width: 10),
+                                  _SholatTime(label: "Maghrib", time: _sholatSchedule!.maghrib),
+                                  const SizedBox(width: 10),
+                                  _SholatTime(label: "Isya", time: _sholatSchedule!.isya),
+                                ],
+                              ),
+                            )
+                          else
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Center(child: Text(_sholatError, style: const TextStyle(color: Colors.red))),
+                            ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          _SholatTime(label: "Subuh", time: "04:30"),
-                          _SholatTime(label: "Dzuhur", time: "12:00"),
-                          _SholatTime(label: "Ashar", time: "15:30"),
-                          _SholatTime(label: "Maghrib", time: "18:00"),
-                          _SholatTime(label: "Isya", time: "19:10"),
+                    ),
+                    SizedBox(height: isSmall ? 10 : 22),
+                    SizedBox(
+                      height: isSmall ? 44 : 60,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          _InfoBanner(
+                            icon: Icons.info,
+                            text: "Jumat: Perbanyak shalawat dan baca Al Kahfi!",
+                            color: const Color.fromRGBO(250, 204, 116, 1),
+                            textColor: Colors.white,
+                          ),
+                          SizedBox(width: isSmall ? 6 : 12),
+                          _InfoBanner(
+                            icon: Icons.star,
+                            text: "Baca Qur'an setiap hari, raih pahala selamanya!",
+                            color: const Color.fromRGBO(250, 204, 116, 1),
+                            textColor: Colors.white,
+                          ),
+                          SizedBox(width: isSmall ? 6 : 12),
+                          _InfoBanner(
+                            icon: Icons.message_sharp,
+                            text: "Hafalan itu bukan perlombaan, tapi perjalanan.",
+                            color: const Color.fromRGBO(250, 204, 116, 1),
+                            textColor: Colors.white,
+                          ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 22),
-                // ...existing code...
-                SizedBox(
-                  height: 60,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _InfoBanner(
-                        icon: Icons.info,
-                        text: "Jumat: Perbanyak shalawat dan baca Al Kahfi!",
-                        color: const Color.fromARGB(255, 250, 204, 116),
-                        textColor: Colors.white,
-                      ),
-                      const SizedBox(width: 12),
-                      _InfoBanner(
-                        icon: Icons.star,
-                        text: "Baca Qur’an setiap hari, raih pahala selamanya!",
-                        color: const Color(0xFF1ABC9C),
-                        textColor: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 28),
-                // ...existing code...
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 18,
-                  crossAxisSpacing: 18,
-                  childAspectRatio: 1.15,
-                  children: const [
-                    _MenuIcon(icon: Icons.menu_book, label: "Al-Qur’an"),
-                    _MenuIcon(icon: Icons.headphones, label: "Qari"),
-                    _MenuIcon(icon: Icons.memory, label: "Hafalan"),
-                    _MenuIcon(icon: Icons.explore, label: "Kiblat"),
+                    ),
+                    SizedBox(height: isSmall ? 16 : 28),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: isSmall ? 8 : 18,
+                      crossAxisSpacing: isSmall ? 8 : 18,
+                      childAspectRatio: gridAspect,
+                      children: const [
+                        _MenuIcon(icon: Icons.menu_book, label: "Al-Qur'an"),
+                        _MenuIcon(icon: Icons.headphones, label: "Qari"),
+                        _MenuIcon(icon: Icons.memory, label: "Hafalan"),
+                        _MenuIcon(icon: Icons.explore, label: "Kiblat"),
+                      ],
+                    ),
+                    SizedBox(height: isSmall ? 60 : 12),
+                    const HijriCalendarCard(),
+                    const IslamicQuoteCard(),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -268,141 +348,365 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// --- Widget Kecil & SettingsPage di bawah ini ---
-
-class _SholatTime extends StatelessWidget {
+class _MenuIcon extends StatefulWidget {
+  final IconData icon;
   final String label;
-  final String time;
-  const _SholatTime({required this.label, required this.time});
+
+  const _MenuIcon({
+    Key? key,
+    required this.icon,
+    required this.label,
+  }) : super(key: key);
+
+  @override
+  State<_MenuIcon> createState() => _MenuIconState();
+}
+
+class _MenuIconState extends State<_MenuIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap(BuildContext context) {
+    switch (widget.label) {
+      case "Al-Qur'an":
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 500),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return FadeTransition(
+                opacity: animation,
+                child: const QuranPage(),
+              );
+            },
+          ),
+        );
+        break;
+      case "Qari":
+        // Handle Qari navigation
+        break;
+      case "Hafalan":
+        // Handle Hafalan navigation
+        break;
+      case "Kiblat":
+        // Handle Kiblat navigation
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontFamily: 'Poppins',color: Color(0xFF1ABC9C), fontWeight: FontWeight.w600, fontSize: 13)),
-        const SizedBox(height: 2),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    final isSmall = MediaQuery.of(context).size.width < 400;
+    
+    return GestureDetector(
+      onTapDown: (_) {
+        setState(() => _isPressed = true);
+        _controller.forward();
+      },
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        _controller.reverse();
+        _handleTap(context);
+      },
+      onTapCancel: () {
+        setState(() => _isPressed = false);
+        _controller.reverse();
+      },
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1ABC9C).withOpacity(0.08),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                color: _isPressed 
+                  ? Colors.black.withOpacity(0.1)
+                  : Colors.black.withOpacity(0.05),
+                blurRadius: _isPressed ? 4 : 8,
+                offset: _isPressed 
+                  ? const Offset(0, 1)
+                  : const Offset(0, 2),
+                spreadRadius: _isPressed ? 0 : 1,
               ),
             ],
           ),
-          child: Text(time, style: const TextStyle(fontFamily: 'Poppins',color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold, fontSize: 13)),
-        ),
-      ],
-    );
-  }
-}
-
-class _InfoBanner extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final Color color;
-  final Color? textColor;
-  const _InfoBanner({required this.icon, required this.text, required this.color, this.textColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.13),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: textColor ?? const Color(0xFF1ABC9C)),
-          const SizedBox(width: 10),
-          Text(text, style: TextStyle(fontFamily: 'Poppins',color: textColor ?? const Color(0xFF1ABC9C), fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-}
-
-class _MenuIcon extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _MenuIcon({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        if (label == "Al-Qur’an") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const QuranPage()),
-          );
-        }
-        // TODO: Navigasi menu lain
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF1ABC9C),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            padding: const EdgeInsets.all(12),
-            child: Icon(icon, color: Colors.white, size: 32),
-          ),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontFamily: 'Cinzel',color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-}
-
-// Halaman Settings
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Background image sementara di-nonaktifkan untuk diagnosis error isolate/engine
-        // Positioned.fill(
-        //   child: Image.asset(
-        //     'assets/bg_hafalq.webp',
-        //     fit: BoxFit.cover,
-        //   ),
-        // ),
-        Container(
-          color: Colors.white.withOpacity(0.82),
-        ),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            title: const Text('Settings'),
-            backgroundColor: const Color(0xFF1ABC9C),
-          ),
-          body: ListView(
-            padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // ...existing code...
-              // (isi SettingsPage tetap, tidak berubah)
+              Hero(
+                tag: 'icon_${widget.label}',
+                child: Icon(
+                  widget.icon,
+                  color: const Color(0xFF1ABC9C),
+                  size: isSmall ? 28 : 36,
+                ),
+              ),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 150),
+                style: TextStyle(
+                  fontFamily: 'Cinzel',
+                  fontSize: isSmall ? 12 : 14,
+                  fontWeight: FontWeight.w600,
+                  color: _isPressed 
+                    ? const Color(0xFF1ABC9C)
+                    : Colors.grey[800],
+                ),
+                child: Text(widget.label),
+              ),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
+}
+
+class _InfoBanner extends StatefulWidget {
+  final IconData icon;
+  final String text;
+  final Color color;
+  final Color textColor;
+
+  const _InfoBanner({
+    Key? key,
+    required this.icon,
+    required this.text,
+    required this.color,
+    required this.textColor,
+  }) : super(key: key);
+
+  @override
+  State<_InfoBanner> createState() => _InfoBannerState();
+}
+
+class _InfoBannerState extends State<_InfoBanner> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
+    
+    return GestureDetector(
+      onTapDown: (_) {
+        setState(() => _isPressed = true);
+        _controller.forward();
+      },
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        _controller.reverse();
+      },
+      onTapCancel: () {
+        setState(() => _isPressed = false);
+        _controller.reverse();
+      },
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmall ? 12 : 16,
+            vertical: isSmall ? 8 : 12,
+          ),
+          decoration: BoxDecoration(
+            color: widget.color,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: widget.color.withOpacity(_isPressed ? 0.2 : 0.3),
+                blurRadius: _isPressed ? 4 : 8,
+                offset: _isPressed 
+                  ? const Offset(0, 1)
+                  : const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              AnimatedScale(
+                duration: const Duration(milliseconds: 150),
+                scale: _isPressed ? 0.9 : 1.0,
+                child: Icon(
+                  widget.icon,
+                  color: widget.textColor,
+                  size: isSmall ? 16 : 20,
+                ),
+              ),
+              SizedBox(width: isSmall ? 6 : 8),
+              Flexible(
+                child: Text(
+                  widget.text,
+                  style: TextStyle(
+                    fontFamily: 'Cinzel',
+                    fontSize: isSmall ? 11 : 14,
+                    fontWeight: FontWeight.w600,
+                    color: widget.textColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SholatTime extends StatefulWidget {
+  final String label;
+  final String time;
+
+  const _SholatTime({
+    Key? key,
+    required this.label,
+    required this.time,
+  }) : super(key: key);
+
+  @override
+  State<_SholatTime> createState() => _SholatTimeState();
+}
+
+class _SholatTimeState extends State<_SholatTime> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
+    
+    return GestureDetector(
+      onTapDown: (_) {
+        setState(() => _isPressed = true);
+        _controller.forward();
+      },
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        _controller.reverse();
+      },
+      onTapCancel: () {
+        setState(() => _isPressed = false);
+        _controller.reverse();
+      },
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmall ? 12 : 16,
+            vertical: isSmall ? 8 : 12,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(_isPressed ? 0.03 : 0.05),
+                blurRadius: _isPressed ? 4 : 8,
+                offset: _isPressed 
+                  ? const Offset(0, 1)
+                  : const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.label,
+                style: TextStyle(
+                  fontFamily: 'Cinzel',
+                  fontSize: isSmall ? 11 : 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
+                ),
+              ),
+              SizedBox(height: isSmall ? 4 : 6),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 150),
+                style: TextStyle(
+                  fontFamily: 'Cinzel',
+                  fontSize: isSmall ? 13 : 16,
+                  fontWeight: FontWeight.bold,
+                  color: _isPressed 
+                    ? const Color(0xFF1ABC9C).withOpacity(0.8)
+                    : const Color(0xFF1ABC9C),
+                ),
+                child: Text(widget.time),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(ChangeNotifierProvider(
+    create: (_) => BookmarkService(),
+    child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const SplashScreen(),
+    ),
+  ));
 }
