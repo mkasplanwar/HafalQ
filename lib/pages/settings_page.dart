@@ -1,6 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '/services/theme_service.dart';
+
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -13,7 +15,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   double _volume = 1.0;
   double _fontSize = 16.0;
-  bool _darkMode = false;
   String _username = 'Nama Pengguna';
 
   @override
@@ -164,16 +165,13 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: SwitchListTile(
-              secondary: const Icon(Icons.dark_mode, color: Color(0xFF1ABC9C)),
-              title: const Text('Dark Mode'),
-              value: _darkMode,
-              onChanged: (value) {
-                setState(() {
-                  _darkMode = value;
-                });
-                // Implementasi dark mode global bisa ditambahkan di sini
-              },
-            ),
+            secondary: const Icon(Icons.dark_mode, color: Color(0xFF1ABC9C)),
+            title: const Text('Dark Mode'),
+            value: Provider.of<ThemeService>(context).isDarkMode,
+            onChanged: (value) {
+              Provider.of<ThemeService>(context, listen: false).setDarkMode(value);
+            },
+          ),
           ),
           const SizedBox(height: 18),
 

@@ -1,18 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/bookmark_service.dart';
+import 'services/theme_service.dart';
+import 'services/sholat_schedule_service.dart';
+import 'services/user_provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'pages/quran_page.dart';
 import 'pages/bookmark_page.dart';
 import 'pages/settings_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'services/sholat_schedule_service.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
+// Import widget lain jika perlu
 import 'widgets/hijri_calendar_card.dart';
 import 'widgets/IslamicQuoteCard.dart';
 import 'widgets/GreetingHeader.dart';
-import 'package:animations/animations.dart';
 
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => BookmarkService()),
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: const HafalQApp(),
+    ),
+  );
+}
+
+class HafalQApp extends StatelessWidget {
+  const HafalQApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeService>(
+      builder: (context, themeService, _) {
+        final themeData = themeService.isDarkMode
+            ? ThemeData(
+                brightness: Brightness.dark,
+                primarySwatch: Colors.teal,
+                scaffoldBackgroundColor: const Color(0xFF23272F),
+                cardColor: const Color(0xFF31343D),
+              )
+            : ThemeData(
+                brightness: Brightness.light,
+                primarySwatch: Colors.teal,
+                scaffoldBackgroundColor: Colors.white,
+                cardColor: Colors.white,
+              );
+
+        return AnimatedTheme(
+          data: themeData,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              brightness: Brightness.light,
+              primarySwatch: Colors.teal,
+              scaffoldBackgroundColor: Colors.white,
+              cardColor: Colors.white,
+            ),
+            darkTheme: ThemeData(
+              brightness: Brightness.dark,
+              primarySwatch: Colors.teal,
+              scaffoldBackgroundColor: const Color(0xFF23272F),
+              cardColor: const Color(0xFF31343D),
+            ),
+            themeMode: themeService.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            home: const SplashScreen(),
+          ),
+        );
+      },
+    );
+  }
+}
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,15 +84,25 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   double _opacity = 1.0;
-  
+  bool _imageCached = false;
+
+  @override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  if (!_imageCached) {
+    precacheImage(const AssetImage('assets/bg_hafalq.png'), context);
+    _imageCached = true;
+  }
+}
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 700), () {
       setState(() {
         _opacity = 0.0;
       });
-      Future.delayed(const Duration(milliseconds: 600), () {
+      Future.delayed(const Duration(milliseconds: 400), () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const MainNavigation()),
         );
@@ -44,21 +115,21 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: AnimatedOpacity(
-      opacity: _opacity,
-      duration: const Duration(milliseconds: 1000),
-      child: SizedBox.expand(
-        child: Image.asset(
-          'assets/splash.png',
-          fit: BoxFit.cover,
+        opacity: _opacity,
+        duration: const Duration(milliseconds: 700),
+        child: const SizedBox.expand(
+          child: Image(
+            image: AssetImage('assets/splash.png'),
+            fit: BoxFit.cover,
+          ),
         ),
       ),
-    ),
     );
   }
 }
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({Key? key}) : super(key: key);
+  const MainNavigation({super.key});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -67,88 +138,79 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
+  static const List<Widget> _pages = [
+    HomePage(),
+    QuranPage(),
+    BookmarkPage(),
+    SettingsPage(),
+  ];
+
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Stack(
-      children: [
-        Positioned.fill(
-          child: Image.asset(
-            'assets/bg_hafalq.png',
-            fit: BoxFit.cover,
-          ),
-        ),
-              // Lapisan gradasi putih semi-transparan
-      Positioned.fill(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color.fromARGB(228, 255, 255, 255), // putih semi-transparan di atas
-                Color.fromARGB(255, 255, 255, 255), // semakin transparan ke bawah
-              ],
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background image (cached)
+          const Positioned.fill(
+            child: Image(
+              image: AssetImage('assets/bg_hafalq.png'),
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-      ),
-        SafeArea(
-          child: IndexedStack(
-            index: _selectedIndex,
-            children: const [
-              HomePage(),
-              QuranPage(),
-              BookmarkPage(),
-              SettingsPage(),
-            ],
+          // Lapisan gradasi putih semi-transparan
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color.fromARGB(228, 255, 255, 255),
+                    Color.fromARGB(255, 255, 255, 255),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
-    ),
-    bottomNavigationBar: BottomNavigationBar(
-      currentIndex: _selectedIndex,
-      onTap: (index) => setState(() => _selectedIndex = index),
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-        BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: "Qur'an"),
-        BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Bookmark'),
-        BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
-      ],
-    ),
-  );
+          SafeArea(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: _pages,
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: "Qur'an"),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Bookmark'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
+        ],
+      ),
+    );
+  }
 }
-}
-
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  String _username = '';
   bool _loadingSholat = true;
-  dynamic _sholatSchedule;
+  dynamic _sholatSchedule; // Kalau ada model SholatSchedule, bisa pakai tipe itu
   String _sholatError = '';
   String _cityName = '';
 
   @override
   void initState() {
     super.initState();
-    _loadUsername();
     _fetchSholatScheduleWithLocation();
-  }
-
-  Future<void> _loadUsername() async {
-    final prefs = await SharedPreferences.getInstance();
-    final loaded = prefs.getString('username') ?? '';
-    setState(() {
-      _username = loaded;
-    });
-    debugPrint('Username from SharedPreferences: $_username');
   }
 
   Future<void> _fetchSholatScheduleWithLocation() async {
@@ -207,8 +269,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final isSmall = MediaQuery.of(context).size.width < 400;
-    final fontSub = isSmall ? 16.0 : 22.0;
     final gridAspect = isSmall ? 1.2 : 1.5;
+    final username = Provider.of<UserProvider>(context).username;
 
     return Scaffold(
       body: Stack(
@@ -228,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     SizedBox(height: isSmall ? 5 : 15),
                     GreetingHeader(
-                      username: _username,
+                      username: username,
                       city: _cityName,
                       isSmall: isSmall,
                     ),
@@ -353,10 +415,9 @@ class _MenuIcon extends StatefulWidget {
   final String label;
 
   const _MenuIcon({
-    Key? key,
     required this.icon,
     required this.label,
-  }) : super(key: key);
+  });
 
   @override
   State<_MenuIcon> createState() => _MenuIconState();
@@ -701,12 +762,3 @@ class _SholatTimeState extends State<_SholatTime> with SingleTickerProviderState
   }
 }
 
-void main() {
-  runApp(ChangeNotifierProvider(
-    create: (_) => BookmarkService(),
-    child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
-    ),
-  ));
-}

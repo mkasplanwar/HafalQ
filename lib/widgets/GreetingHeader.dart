@@ -14,8 +14,6 @@ class GreetingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fontSub = isSmall ? 16.0 : 22.0;
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(isSmall ? 12 : 20),

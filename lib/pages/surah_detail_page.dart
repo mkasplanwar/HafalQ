@@ -6,12 +6,13 @@ import 'package:provider/provider.dart';
 import '../pages/bookmark_page.dart';
 import '../services/latin_api_service.dart';
 
-class SurahDetailPage extends StatelessWidget {
+class SurahDetailPage extends StatefulWidget {
   final int surahNumber;
   final String surahName;
   final String translation;
   final int ayahCount;
   final List<Ayat> ayatList;
+  final int? scrollToAyat;
 
   const SurahDetailPage({
     super.key,
@@ -20,54 +21,88 @@ class SurahDetailPage extends StatelessWidget {
     required this.translation,
     required this.ayahCount,
     required this.ayatList,
+    this.scrollToAyat,
   });
+  
+  @override
+  State<SurahDetailPage> createState() => _SurahDetailPageState();
+}
+
+class _SurahDetailPageState extends State<SurahDetailPage> {
+  late Future<List<Ayat>> _futureAyatList;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _futureAyatList = _mergeLatin();
+
+    // Tunggu data ayat loaded, baru scroll
+    _futureAyatList.then((list) {
+      if (widget.scrollToAyat != null) {
+        // Delay supaya widget sudah ter-build
+        Future.delayed(const Duration(milliseconds: 200), () {
+          // Index-nya mulai dari 0, ayat dari 1, jadi kurangi 1
+          final targetIndex = (widget.scrollToAyat! - 1).clamp(0, list.length - 1);
+          // Scroll ke target index (sesuaikan dengan itemHeight)
+          _scrollController.animateTo(
+            targetIndex * 125, // itemHeight: 125px kira2 (atur sesuai Card-mu)
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   Future<List<Ayat>> _mergeLatin() async {
-    // Jika sudah ada latin, langsung return
-    if (ayatList.isNotEmpty && ayatList[0].latin.isNotEmpty) return ayatList;
+    if (widget.ayatList.isNotEmpty && widget.ayatList[0].latin.isNotEmpty) return widget.ayatList;
     try {
-      final latinList = await LatinApiService().fetchLatinList(surahNumber);
-      // Gabungkan latin ke ayatList berdasarkan index
-      return List.generate(ayatList.length, (i) => Ayat(
-        number: ayatList[i].number,
-        arab: ayatList[i].arab,
+      final latinList = await LatinApiService().fetchLatinList(widget.surahNumber);
+      return List.generate(widget.ayatList.length, (i) => Ayat(
+        number: widget.ayatList[i].number,
+        arab: widget.ayatList[i].arab,
         latin: (i < latinList.length && latinList[i].isNotEmpty) ? latinList[i] : '',
-        translation: ayatList[i].translation,
-        audioUrl: ayatList[i].audioUrl,
+        translation: widget.ayatList[i].translation,
+        audioUrl: widget.ayatList[i].audioUrl,
       ));
     } catch (e) {
       debugPrint('Gagal fetch latin: $e');
-      // Jika gagal, tetap tampilkan ayatList tanpa latin
-      return ayatList;
+      return widget.ayatList;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Surah $surahName 📖',
-            style: const TextStyle(
-              fontFamily: 'Merriweather',
-              fontSize: 22,
-              color: Color.fromARGB(255, 45, 46, 46),
-            )),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.surahName, style: const TextStyle(fontFamily: 'Merriweather', fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(widget.translation, style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFFF7C873), fontWeight: FontWeight.w500)),
+          ],
+        ),
         backgroundColor: const Color(0xFF1ABC9C),
         actions: [
           IconButton(
             icon: const Icon(Icons.bookmark, color: Color(0xFFF7C873)),
             tooltip: 'Lihat Bookmark',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BookmarkPage()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const BookmarkPage()));
             },
           ),
         ],
       ),
       body: FutureBuilder<List<Ayat>>(
-        future: _mergeLatin(),
+        future: _futureAyatList,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -84,18 +119,21 @@ class SurahDetailPage extends StatelessWidget {
               ),
             );
           }
-          final mergedAyatList = snapshot.data ?? ayatList;
+          final mergedAyatList = snapshot.data ?? widget.ayatList;
           return Column(
             children: [
               SurahAudioPlayer(ayatList: mergedAyatList),
               Expanded(
                 child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.only(bottom: 18),
                   itemCount: mergedAyatList.length,
                   itemBuilder: (context, index) {
                     final ayat = mergedAyatList[index];
                     return _AyatCard(
+                      surahNumber: widget.surahNumber,
                       ayat: ayat,
-                      surahName: surahName,
+                      surahName: widget.surahName,
                     );
                   },
                 ),
@@ -205,7 +243,7 @@ class SurahAudioPlayerState extends State<SurahAudioPlayer> {
         borderRadius: BorderRadius.circular(20),
         side: const BorderSide(color: Color(0xFF1ABC9C), width: 2),
       ),
-      margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         child: Row(
@@ -221,7 +259,6 @@ class SurahAudioPlayerState extends State<SurahAudioPlayer> {
               onPressed: _toggleRepeat,
             ),
             const SizedBox(width: 10),
-            // Dropdown repeat count
             if (_isRepeating)
               DropdownButton<int>(
                 value: _repeatCount,
@@ -251,7 +288,17 @@ class SurahAudioPlayerState extends State<SurahAudioPlayer> {
             ),
             const Spacer(),
             if (_isPlaying)
-              Text('Ayat ${_currentAyat + 1}', style: const TextStyle(color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold)),
+              Flexible(
+                child: Text(
+                  'Ayat ${_currentAyat + 1}',
+                  style: const TextStyle(
+                    color: Color(0xFF1ABC9C),
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                ),
+              ),
             const SizedBox(width: 8),
             const Icon(Icons.graphic_eq, color: Color(0xFFF7C873), size: 28),
           ],
@@ -261,13 +308,12 @@ class SurahAudioPlayerState extends State<SurahAudioPlayer> {
   }
 }
 
-// Duplicate _SurahAudioPlayer removed for clarity. Only SurahAudioPlayer is used.
-
-
 class _AyatCard extends StatefulWidget {
+  final int surahNumber;
   final Ayat ayat;
   final String surahName;
-  const _AyatCard({required this.ayat, required this.surahName});
+  const _AyatCard({required this.ayat, required this.surahName, required this.surahNumber, Key? key,})
+      : super(key: key);
 
   @override
   State<_AyatCard> createState() => _AyatCardState();
@@ -349,17 +395,19 @@ class _AyatCardState extends State<_AyatCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Card(
-      elevation: 6,
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: Color(0xFF1ABC9C), width: 1.5),
+        borderRadius: BorderRadius.circular(15),
+        side: const BorderSide(color: Color(0xFF1ABC9C), width: 1.1),
       ),
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+      margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 14),
+      color: isDark ? Colors.teal.withOpacity(0.10) : Colors.white,
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -369,7 +417,7 @@ class _AyatCardState extends State<_AyatCard> {
                       backgroundColor: const Color(0xFFF7C873),
                       child: Text(
                         widget.ayat.number.toString(),
-                        style: const TextStyle(fontFamily: 'Poppins',color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontFamily: 'Poppins', color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -379,92 +427,107 @@ class _AyatCardState extends State<_AyatCard> {
                         children: [
                           Text(
                             widget.ayat.arab,
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 15, 150, 123)),
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: isDark
+                                  ? Colors.teal[200]
+                                  : const Color.fromARGB(255, 15, 150, 123),
+                            ),
                             textAlign: TextAlign.right,
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            widget.ayat.latin.isNotEmpty ? widget.ayat.latin : '(Latin tidak tersedia)',
-                            style: const TextStyle(fontFamily: 'Merriweather',fontSize: 15, color: Color(0xFF1ABC9C), fontStyle: FontStyle.italic),
-                            textAlign: TextAlign.right,
-                          ),
+                          const SizedBox(height: 5),
+                          if (widget.ayat.latin.isNotEmpty)
+                            Text(
+                              widget.ayat.latin,
+                              style: TextStyle(
+                                fontFamily: 'Merriweather',
+                                fontSize: 14,
+                                color: isDark ? Colors.teal[100] : const Color(0xFF1ABC9C),
+                                fontStyle: FontStyle.italic,
+                              ),
+                              textAlign: TextAlign.right,
+                            ),
                         ],
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                Text(widget.ayat.translation, style: const TextStyle(fontFamily: 'Merriweather',fontSize: 16, color: Colors.black87)),
-                const SizedBox(height: 14),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(_isPlaying ? Icons.stop_circle : Icons.play_circle_fill, color: Color(0xFF1ABC9C), size: 32),
-                        tooltip: _isPlaying ? 'Stop' : 'Play',
-                        onPressed: _isPlaying ? _stop : _play,
-                      ),
-                      IconButton(
-                        icon: Icon(_isRepeating ? Icons.repeat_one : Icons.repeat, color: Color(0xFFF7C873), size: 28),
-                        tooltip: 'Ulangi',
-                        onPressed: _toggleRepeat,
-                      ),
-                      if (_isRepeating)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4, right: 8),
-                          child: DropdownButton<int>(
-                            value: _repeatCount,
-                            items: const [
-                              DropdownMenuItem(value: 1, child: Text('1x', style: TextStyle(fontSize: 13))),
-                              DropdownMenuItem(value: 5, child: Text('5x', style: TextStyle(fontSize: 13))),
-                              DropdownMenuItem(value: 10, child: Text('10x', style: TextStyle(fontSize: 13))),
-                              DropdownMenuItem(value: 15, child: Text('15x', style: TextStyle(fontSize: 13))),
-                            ],
-                            onChanged: _setRepeatCount,
-                            style: const TextStyle(color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold, fontSize: 13),
-                            dropdownColor: Colors.white,
-                            underline: SizedBox.shrink(),
-                            icon: const Icon(Icons.arrow_drop_down, size: 18, color: Color(0xFF1ABC9C)),
-                          ),
-                        ),
-                      Icon(Icons.speed, color: Color(0xFF1ABC9C), size: 24),
-                      SizedBox(
-                        width: 80,
-                        child: Slider(
-                          value: _speed,
-                          min: 0.5,
-                          max: 2.0,
-                          divisions: 3,
-                          label: '${_speed}x',
-                          activeColor: const Color(0xFF1ABC9C),
-                          onChanged: _changeSpeed,
-                        ),
-                      ),
-                    ],
+                Text(
+                  widget.ayat.translation,
+                  style: TextStyle(
+                    fontFamily: 'Merriweather',
+                    fontSize: 15,
+                    color: isDark ? Colors.grey[200] : Colors.black87,
                   ),
+                ),
+                const SizedBox(height: 12),
+                // Kontrol audio per ayat
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(_isPlaying ? Icons.stop_circle : Icons.play_circle_fill, color: Color(0xFF1ABC9C), size: 29),
+                      tooltip: _isPlaying ? 'Stop' : 'Play',
+                      onPressed: _isPlaying ? _stop : _play,
+                    ),
+                    IconButton(
+                      icon: Icon(_isRepeating ? Icons.repeat_one : Icons.repeat, color: Color(0xFFF7C873), size: 24),
+                      tooltip: 'Ulangi',
+                      onPressed: _toggleRepeat,
+                    ),
+                    if (_isRepeating)
+                      DropdownButton<int>(
+                        value: _repeatCount,
+                        items: const [
+                          DropdownMenuItem(value: 1, child: Text('1x')),
+                          DropdownMenuItem(value: 5, child: Text('5x')),
+                          DropdownMenuItem(value: 10, child: Text('10x')),
+                        ],
+                        onChanged: _setRepeatCount,
+                        style: const TextStyle(color: Color(0xFF1ABC9C), fontWeight: FontWeight.bold, fontSize: 13),
+                        dropdownColor: Colors.white,
+                        underline: SizedBox.shrink(),
+                        icon: const Icon(Icons.arrow_drop_down, size: 18, color: Color(0xFF1ABC9C)),
+                      ),
+                    Icon(Icons.speed, color: Color(0xFF1ABC9C), size: 20),
+                    SizedBox(
+                      width: 62,
+                      child: Slider(
+                        value: _speed,
+                        min: 0.5,
+                        max: 2.0,
+                        divisions: 3,
+                        label: '${_speed}x',
+                        activeColor: const Color(0xFF1ABC9C),
+                        onChanged: _changeSpeed,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          // BOOKMARK tombol
           Positioned(
             bottom: 8,
             right: 8,
             child: Consumer<BookmarkService>(
               builder: (context, bookmarkService, child) {
-                final isBookmarked = bookmarkService.bookmarks.contains('${widget.surahName}:${widget.ayat.number}');
+                final bookmarkId = '${widget.surahNumber}:${widget.surahName}:${widget.ayat.number}';
+                final isBookmarked = bookmarkService.bookmarks.contains(bookmarkId);
                 return IconButton(
                   icon: Icon(
                     isBookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
                     color: isBookmarked ? Color(0xFFF7C873) : Color(0xFF1ABC9C),
-                    size: 28,
+                    size: 26,
                   ),
                   tooltip: isBookmarked ? 'Hapus Bookmark' : 'Tambah Bookmark',
                   onPressed: () {
                     if (isBookmarked) {
-                      bookmarkService.removeBookmark('${widget.surahName}:${widget.ayat.number}');
+                      bookmarkService.removeBookmark(bookmarkId);
                     } else {
-                      bookmarkService.addBookmark('${widget.surahName}:${widget.ayat.number}');
+                      bookmarkService.addBookmark(bookmarkId);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Ditambahkan ke bookmark')),
                       );
@@ -479,4 +542,3 @@ class _AyatCardState extends State<_AyatCard> {
     );
   }
 }
-
