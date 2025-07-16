@@ -1,5 +1,7 @@
 # Alquran dengan Metode Tasmi'
 Project With Dean
+API PRAYER TIMES:
+https://aladhan.com/prayer-times-api
 API ALQURAN: 
 https://github.com/bachors/Al-Quran-ID-API?tab=readme-ov-file
 
