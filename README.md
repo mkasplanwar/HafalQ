@@ -1,5 +1,6 @@
 # Alquran dengan Metode Tasmi'
 Project With Dean
+
 API PRAYER TIMES:
 https://aladhan.com/prayer-times-api
 API ALQURAN: 
