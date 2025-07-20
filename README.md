@@ -15,6 +15,8 @@
   <tr>
     <td><img src="assets/home.jpg" alt="Screenshot Home" width="300"/></td>
     <td><img src="assets/surah.jpg" alt="Screenshot Surah" width="300"/></td>
+    <td><img src="assets/list.jpg" alt="Screenshot Surah" width="300"/></td>
+    <td><img src="assets/bookmark.jpg" alt="Screenshot Surah" width="300"/></td>
   </tr>
 </table>
 
