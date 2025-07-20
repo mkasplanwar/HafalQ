@@ -11,8 +11,12 @@
 - Profil pengguna yang bisa diedit sesuai kebutuhan
 
 ## 📱 Screenshot
-![Screenshot Home](assets/home.jpg)
-![Screenshot Surah](assets/surah.jpg)
+<table>
+  <tr>
+    <td><img src="assets/home.jpg" alt="Screenshot Home" width="300"/></td>
+    <td><img src="assets/surah.jpg" alt="Screenshot Surah" width="300"/></td>
+  </tr>
+</table>
 
 ## ℹ️ Changelog
 Lihat [Release Page](https://github.com/mkasplanwar/HafalQ/releases) untuk detail update versi terbaru.
