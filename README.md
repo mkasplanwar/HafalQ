@@ -47,7 +47,7 @@
 | Peran           | Nama                            |
 |-----------------|---------------------------------|
 | Scrum Master    | Wifda                           |
-| Product Owner   | @Anwar                          |
+| Product Leader  | @Anwar                          |
 | UI/UX Designer  | @Lutfan                         |
 | Frontend Dev    | @Fahrul Bahri (TI23B)           |
 | Backend Dev     | @Hafiz                          |
